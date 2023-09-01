@@ -92,11 +92,11 @@ const config = {
             items: [
               {
                 label: 'ROM5',
-                to: '/docs/ROM5/doc',
+                to: '/docs/R5.ROM.11 AUTOMATISATION ET VIRTUALIZATION DES RESEAUX/cours',
               },
               {
                 label: 'R5.02',
-                to: '/docs/R5.02 SUPERVISION DES RESEAUX/doc',
+                to: '/docs/R5.02 SUPERVISION DES RESEAUX/TP1',
               },
             ],
           },
