@@ -126,6 +126,7 @@ N'oublier pas de modifier `wlan0` par l'interface correspondante de votre machin
 
 :::note  
 > 🛑 Mise à jour de la Configuration
+>
 > Si vous modifiez le `Vagrantfile` après que la VM soit en cours d'exécution, utilisez la commande suivante pour appliquer ces changements :
 > 
 > ```bash
