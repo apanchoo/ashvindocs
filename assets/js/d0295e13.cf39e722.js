@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkashvin=self.webpackChunkashvin||[]).push([[5053],{3397:a=>{a.exports=JSON.parse('{"label":"hola","permalink":"/ashvindocs/blog/tags/hola","allTagsPath":"/ashvindocs/blog/tags","count":1}')}}]);

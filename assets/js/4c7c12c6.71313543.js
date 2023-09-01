@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkashvin=self.webpackChunkashvin||[]).push([[8996],{9403:s=>{s.exports=JSON.parse('{"permalink":"/ashvindocs/blog/tags/docusaurus","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
