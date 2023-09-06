@@ -50,7 +50,7 @@ Cette documentation vous guide à travers les étapes nécessaires pour déploye
 
 ```bash
 Vagrant.configure("2") do |config|
-  config.vm.box = "sloopstash/ubuntu-22-04-server"
+  config.vm.box = "ubuntu/mantic64"
   config.vm.box_version = "1.1.1"
 
   # Configurer le réseau en mode ponté
