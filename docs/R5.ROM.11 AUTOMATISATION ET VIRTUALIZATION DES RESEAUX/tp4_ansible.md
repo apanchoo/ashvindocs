@@ -36,6 +36,6 @@ Une fois ansible installé nous l'ajoutons aux PATH en modifant le fichier bashr
 ## Configuration de la Vault de ANSIBLE
 Ansible dispose d'une base de donnée contenant tout les équipement qu'il faut orchestré. Une 
 
-
+rajouter un schéma d'interaction
 
 

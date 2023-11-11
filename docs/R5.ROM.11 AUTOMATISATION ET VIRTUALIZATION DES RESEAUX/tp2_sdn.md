@@ -31,10 +31,10 @@ Il est maintenant temps d'interconnecter nos deux switchs entre eux. Pour ce fai
 
 ```bash
 # Sur SW1
-sudo ovs-vsctl add-port br0 vx1 - set interface vx1 type=vxlan options:remote_ip=<SW2_IP> options:key=2000
+sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=10.0.0.1 options:key=2000
 
 # Sur SW2
-sudo ovs-vsctl add-port br0 vx1 - set interface vx1 type=vxlan options:remote_ip=<SW1_IP> options:key=2000
+sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=<SW1_IP> options:key=2000
 ```
 :::caution
 L'id ici est important car il permet d'identifier clairement de quel lien il s'agit. A noter que au préalable les 4 machines doivent avoir une adresse ip sur leur interface principale et doivent pouvoir commmuniquer entre elle. 
