@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkashvin=self.webpackChunkashvin||[]).push([[8508],{7323:s=>{s.exports=JSON.parse('{"label":"sdn","permalink":"/ashvindocs/blog/tags/sdn","allTagsPath":"/ashvindocs/blog/tags","count":1}')}}]);

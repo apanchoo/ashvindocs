@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkashvin=self.webpackChunkashvin||[]).push([[4806],{6231:s=>{s.exports=JSON.parse('{"label":"ansible","permalink":"/ashvindocs/blog/tags/ansible","allTagsPath":"/ashvindocs/blog/tags","count":1}')}}]);

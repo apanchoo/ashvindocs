@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkashvin=self.webpackChunkashvin||[]).push([[5279],{5704:a=>{a.exports=JSON.parse('{"label":"vxlan","permalink":"/ashvindocs/blog/tags/vxlan","allTagsPath":"/ashvindocs/blog/tags","count":1}')}}]);
