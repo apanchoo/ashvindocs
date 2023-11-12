@@ -73,19 +73,49 @@ Voici de brêves explications pour installer ces logiciels :
 1. **Création du dossier de projet** : Créez un dossier pour votre projet et naviguez dans ce dossier.
 2. **Initialisation de Vagrant** : Exécutez `vagrant init` pour créer un fichier `Vagrantfile`.
 3. **Configuration du `Vagrantfile`** :
-   - Définissez les VMs souhaitées (h1, h2, h3, h4, SW1, SW2, OPENDAYLIGHT).
-   - Utilisez un script ou une configuration manuelle pour chaque VM.
-   - Pour chaque VM, spécifiez la configuration réseau en mode "aucune connexion".
+   - Définissez les VMs souhaitées (h1, h2, SW1, SW2, OPENDAYLIGHT).
+   - Utilisez le script pour configurer les VM.
+   - Pour chaque VM, spécifiez la configuration réseau en mode "privé".
 
 #####  Exemple de Configuration pour une VM
 ```ruby
 Vagrant.configure("2") do |config|
+  # VM called H1
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11 = true
   config.vm.define "h1" do |h1|
-    h1.vm.box = "ubuntu/bionic64"
-    # Autres configurations spécifiques à h1
-    h1.vm.network "none"
+    h1.vm.box = "ubuntu/mantic64"
+    h1.vm.hostname = "h1"
+    h1.vm.network "private_network", ip: "192.168.56.10"
   end
-  # Répétez pour h2, h3, h4, SW1, SW2, OPENDAYLIGHT
+
+  # VM called H2
+  config.vm.define "h2" do |h2|
+    h2.vm.box = "ubuntu/mantic64"
+    h2.vm.hostname = "h2"
+    h2.vm.network "private_network", ip: "192.168.56.11"
+  end
+
+  # VM called OPENDAYLIGHT
+  config.vm.define "OPENDAYLIGHT" do |odl|
+    odl.vm.box = "ubuntu/mantic64"
+    odl.vm.hostname = "opendaylight"
+    odl.vm.network "private_network", ip: "192.168.56.12"
+  end
+
+  # VM called SW1 
+  config.vm.define "SW1" do |sw1|
+    sw1.vm.box = "ubuntu/mantic64"
+    sw1.vm.hostname = "SW1"
+    sw1.vm.network "private_network", ip: "192.168.56.13"
+  end
+
+  # VM called SW2 
+  config.vm.define "SW2" do |sw2|
+    sw2.vm.box = "ubuntu/mantic64"
+    sw2.vm.hostname = "sw2"
+    sw2.vm.network "private_network", ip: "192.168.56.14"
+  end
 end
 ```
 
@@ -95,37 +125,6 @@ end
 2. **Accès aux VMs** : Utilisez `vagrant ssh [nom_vm]` pour accéder à chaque VM.
 3. **Vérification de la configuration réseau** : Dans chaque VM, utilisez des commandes comme `ifconfig` ou `ip a` pour vérifier les configurations réseau.
 
-##  Importation des VMs VirtualBox dans GNS3 et Connexion au Switch Ethernet
-
-Après avoir configuré vos machines virtuelles (VMs) avec Vagrant, la prochaine étape consiste à les importer dans GNS3 et les connecter à un switch Ethernet. Voici les étapes à suivre :
-
-###  Prérequis
-- Assurez-vous que GNS3 est installé sur votre machine.
-- Assurez-vous que VirtualBox est installé et que vos VMs Vagrant y sont accessibles.
-
-#### Étape 1: Configuration de GNS3 pour Utiliser VirtualBox
-1. **Ouvrez GNS3** : Lancez l'application GNS3.
-2. **Configuration de VirtualBox dans GNS3** : 
-   - Allez dans `Edit` > `Preferences`.
-   - Sous la section `VirtualBox`, vérifiez que le chemin vers VirtualBox est correctement configuré.
-
-#### Étape 2: Importation des VMs dans GNS3
-1. **Ajouter une nouvelle VM VirtualBox** : 
-   - Toujours dans `Preferences`, sous `VirtualBox VMs`, cliquez sur `New`.
-   - Sélectionnez la VM que vous voulez importer depuis la liste des VMs VirtualBox disponibles.
-   - Suivez les instructions pour l'ajouter à GNS3.
-   - Répétez pour chaque VM (h1, h2, h3, h4, SW1, SW2).
-
-#### Étape 3: Création du Projet GNS3
-1. **Création d'un nouveau projet** : Dans GNS3, créez un nouveau projet.
-2. **Ajout des VMs au projet** : Glissez et déposez chaque VM importée dans l'espace de travail du projet.
-
-#### Étape 4: Connexion des VMs au Switch Ethernet
-1. **Ajout d'un Switch Ethernet** : 
-   - Cherchez le switch Ethernet dans la barre latérale de GNS3 (sous `Switches`) et ajoutez-le à votre espace de travail.
-2. **Connexion des VMs au Switch** : 
-   - Cliquez sur une VM, puis sur le switch Ethernet, et choisissez les interfaces à connecter.
-   - Répétez cette opération pour connecter toutes les VMs au switch.
 
 ##  Installation d'OpenStack sur h1
 
@@ -138,12 +137,28 @@ Nous allons procéder à l'installation d'OpenStack sur la machine virtuelle h1.
 1. **Modification du `Vagrantfile`** : Pour préparer h1 à accueillir OpenStack, modifiez le `Vagrantfile` en ajoutant les configurations suivantes à la section dédiée à h1 :
 
     ```bash
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = "8192"  # Allouer 8 GB de RAM
-      vb.cpus = 4  # Allouer 4 cœurs CPU
+  config.vm.define "h1" do |h1|
+    h1.vm.box = "ubuntu/mantic64"
+    h1.vm.hostname = "h1"
+    h1.vm.network "private_network", ip: "192.168.56.10"
+    
+    # Configuration réseau en mode ponté de VM1
+    h1.vm.network "public_network", bridge: "wlan0" 
+
+    # Configuration du fournisseur VirtualBox de VM1
+    h1.vm.provider "virtualbox" do |vb|
+      vb.memory = "8192"  # 8 GB de RAM
+      vb.cpus = 4  # 4 cœurs de CPU
       vb.name = "TP3_R5ROM11_OPENSTACK"
       vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
     end
+
+    # Provisionnement de VM1
+    h1.vm.provision "shell", inline: <<-SHELL
+      sudo snap install microstack --edge --classic
+      PATH=/snap/bin:$PATH /snap/bin/microstack.init --auto --control
+    SHELL
+  end
     ```
 
 2. **Rechargement de la Configuration** : Appliquez ces changements en exécutant `vagrant reload` dans votre terminal.
@@ -153,7 +168,7 @@ Nous allons procéder à l'installation d'OpenStack sur la machine virtuelle h1.
 Une fois OpenStack installé et la VM configurée, suivez ces étapes pour accéder à l'interface web d'OpenStack :
 
 1. **Obtention du Mot de Passe OpenStack** :
-   - Connectez-vous à h1 via `vagrant ssh`.
+   - Connectez-vous à h1 via `vagrant ssh h1`.
    - Exécutez cette commande pour récupérer le mot de passe de l'interface OpenStack :
      ```bash
      sudo snap get microstack config.credentials.keystone-password
@@ -187,11 +202,6 @@ feature:repo-refresh
 feature:install odl-openflowplugin-southbound 
 ```
 
-**Configuration de l'Adresse IP** : Sur la deuxième interface réseau de la machine OPENDAYLIGHT, configurez l'adresse IP suivante : `10.0.0.254/24`.
-
-```bash
-ip addr add 10.0.0.254/24 dev <interface2>
-```
 ### Configuration des Switchs
 
 #### Création d'un Réseau Virtuel (NFV)
@@ -199,12 +209,6 @@ Dans cette architecture, le réseau est entièrement virtualisé dans une machin
 
 ```bash
 sudo apt install openvswitch-switch
-```
-
-Avant de continuer ajouter l'adresse ip pour chaque machine (h1, h2, SW1, SW2) selon le plan d'adressage plus haut.
-
-```bash
-ip addr add 10.0.0.X/24 dev <interface2>
 ```
 
 Après l'installation d'OpenvSwitch, créez un bridge et une interface interne pour chaque switch virtuel sur les quatre machines :
@@ -220,13 +224,13 @@ Créez un lien VXLAN entre les deux switchs (SW1 et SW2) en utilisant les comman
 
 ```bash
 # Sur SW1
-sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=10.0.0.2 options:key=2000
+sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=192.168.56.14 options:key=2000
 
 # Sur SW2
-sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=10.0.0.1 options:key=2000
+sudo ovs-vsctl add-port br0 vx1 -- set Interface vx1 type=vxlan options:remote_ip=192.168.56.13 options:key=2000
 ```
 
-**Important** : Assurez-vous que les quatre machines (h1, h2, SW1, SW2) possèdent des adresses IP sur leur interface principale et peuvent communiquer entre elles.
+**Important** : Assurez-vous que les quatre machines (h1, h2, SW1, SW2) possèdent des adresses IP sur leur interface secondaire et peuvent communiquer entre elles.
 
 ### Configuration des Hôtes
 
@@ -234,20 +238,20 @@ Connectez les hôtes h1 et h2 à leurs switchs respectifs (SW1 et SW2) en utilis
 
 ```bash
 # h1 vers SW1
-sudo ovs-vsctl add-port br0 vx1 -- set interface vx1 type=vxlan options:remote_ip=10.0.0.1 options:key=2001
+sudo ovs-vsctl add-port br0 vx1 -- set interface vx1 type=vxlan options:remote_ip=192.168.56.13 options:key=2001
 # SW1 vers h1
-sudo ovs-vsctl add-port br0 vx2 -- set interface vx2 type=vxlan options:remote_ip=10.0.0.10 options:key=2001
+sudo ovs-vsctl add-port br0 vx2 -- set interface vx2 type=vxlan options:remote_ip=192.168.56.10 options:key=2001
 
 # h2 vers SW2
-sudo ovs-vsctl add-port br0 vx1 -- set interface vx1 type=vxlan options:remote_ip=10.0.0.2 options:key=2001
+sudo ovs-vsctl add-port br0 vx1 -- set interface vx1 type=vxlan options:remote_ip=192.168.56.14 options:key=2001
 # SW2 vers h2
-sudo ovs-vsctl add-port br0 vx2 -- set interface vx2 type=vxlan options:remote_ip=10.0.0.20 options:key=2001
+sudo ovs-vsctl add-port br0 vx2 -- set interface vx2 type=vxlan options:remote_ip=192.168.56.11 options:key=2001
 ```
 #### Configuration du controleur dans les Switch
 Pour chaque switch SW1 et SW2 il faut leur spécifier la présence de notre controleur SDN et pour ce faire il faut utiliser la commande  :
 
 ```bash
-sudo ovs-vsctl set bridge br0 protocols=OpenFlow10 -- set-controller br0 tcp:10.0.0.254:6633
+sudo ovs-vsctl set bridge br0 protocols=OpenFlow10 -- set-controller br0 tcp:192.168.56.12:6633
 ```
 
 ### Test de fonctionnement
@@ -257,12 +261,12 @@ Tout ce qu'il reste à faire maintenant est de tester cette configuration en att
 
 ```
 # Sur h1
-ip addr add 100.0.0.101/24 dev br0-int
-ip link set br0-int up
+sudo ip addr add 100.0.0.101/24 dev br0-int
+sudo ip link set br0-int up
 
 # Sur h2
-ip addr add 100.0.0.102/24 dev br0-int
-ip link set br0-int up
+sudo ip addr add 100.0.0.102/24 dev br0-int
+sudo ip link set br0-int up
 
 ```
  Puis vérifier la que le bon fonctionnement de l'architecture à l'aide d'un ping de h1 vers h2 ou inversement.
@@ -283,23 +287,36 @@ https://infoloup.no-ip.org/virtualbox-debian11-openvswitch-creation/
 https://medium.com/@blackvvine/sdn-part-2-building-an-sdn-playground-on-the-cloud-using-open-vswitch-and-opendaylight-a0e2de029ce1
 :::
 
-## Utilisation de Wireshark pour la Vérification du Réseau dans GNS3
+## Analyse de Trames avec Wireshark sur H2 via Redirection SSH
 
-### Confirmation du Fonctionnement Réseau
+Pour analyser les trames réseau sur la machine virtuelle H2, nous utiliserons Wireshark. Cette opération nécessitera la redirection SSH, donc assurez-vous d'avoir les outils nécessaires installés sur votre système Windows, comme un serveur X11 (par exemple, Xming ou VcXsrv).
 
-Pour vérifier et démontrer le bon fonctionnement du réseau dans GNS3, procédez comme suit :
+### Étapes d'installation et de configuration :
 
-1. **Surveillance du Trafic entre h1 et le Switch Ethernet** :
-   - Faites un clic droit sur le lien qui connecte h1 au switch Ethernet.
-   - Sélectionnez l'option "Wireshark" pour lancer l'analyse du trafic.
-   - Observez les trames ICMP générées par les opérations de ping précédentes.
+1. **Installer Wireshark sur H2** :
+   Exécutez la commande suivante dans le terminal de H2 pour installer Wireshark :
+   ```
+   sudo apt install wireshark
+   ```
 
-2. **Analyse du Trafic entre SW1 et le Switch Ethernet** :
-   - Répétez la même opération en faisant un clic droit sur le lien entre SW1 et le switch Ethernet.
-   - Choisissez à nouveau l'option "Wireshark".
-   - Examinez le trafic pour confirmer la communication correcte entre ces deux éléments.
+2. **Configurer la Redirection X11 sous Windows** :
+   - Installez un serveur X11, tel que Xming ou VcXsrv, sur votre système Windows.
+   - Assurez-vous que la redirection X11 est activée dans votre client SSH.
 
-Ces étapes vous permettront d'analyser le trafic réseau et de vérifier la transmission des données, notamment les trames ICMP, attestant ainsi du bon fonctionnement du réseau configuré dans GNS3.
+3. **Lancer Wireshark via SSH avec Redirection X11** :
+   - Lancez Wireshark avec la commande suivante, qui préserve les variables d'environnement pour la redirection X11 :
+     ```
+     sudo -E wireshark
+     ```
+
+4. **Effectuer la Capture de Trames** :
+   - Dans Wireshark, choisissez `any` pour l'interface d'écoute.
+   - Appliquez le filtre `vxlan` pour filtrer les paquets spécifiques à VXLAN.
+   - Démarrez la capture et procédez à des actions réseau (comme un ping) pour générer du trafic.
+
+Observez comment les trames ICMP sont encapsulées dans VXLAN, ce qui permet une analyse détaillée du trafic réseau à travers le tunnel VXLAN.
+
+
 
 ## Installation de Docker et Ansible sur h2 et Provisionnement d'un Conteneur Docker via Ansible
 
@@ -349,5 +366,44 @@ Ces étapes vous permettront d'analyser le trafic réseau et de vérifier la tra
 
 ### Vérification
 
-- Après l'exécution du playbook, vérifiez que le conteneur est en cours d'exécution avec `docker ps`.
+- Après l'exécution du playbook, vérifiez que le conteneur est en cours d'exécution avec `sudo docker ps`.
 
+##  Importation des VMs VirtualBox dans GNS3 et Connexion au Switch Ethernet
+
+Après avoir configuré vos machines virtuelles (VMs) avec Vagrant, la prochaine étape consiste à les importer dans GNS3 et les connecter à un switch Ethernet. Voici les étapes à suivre :
+
+### Prérequis
+- Assurez-vous que GNS3 est installé sur votre machine.
+- Vérifiez que VirtualBox est installé et que vos VMs Vagrant y sont accessibles.
+
+#### Étape 1: Configuration de GNS3 pour Utiliser VirtualBox
+1. **Ouvrez GNS3** : Lancez l'application GNS3.
+2. **Configurer VirtualBox dans GNS3** : 
+   - Allez dans `Edit` > `Preferences`.
+   - Dans la section `VirtualBox`, assurez-vous que le chemin vers VirtualBox est correctement configuré.
+
+#### Étape 2: Intégration des VMs Vagrant dans GNS3
+1. **Ajouter une nouvelle VM VirtualBox dans GNS3** : 
+   - Dans `Preferences` sous `VirtualBox VMs`, cliquez sur `New`.
+   - Sélectionnez la VM à importer depuis la liste des VMs VirtualBox disponibles.
+   - Suivez les instructions pour l'ajouter à GNS3.
+   - Répétez cette étape pour chaque VM (h1, h2, SW1, SW2).
+
+#### Étape 3: Création du Projet GNS3 et Configuration des VMs
+1. **Création d'un nouveau projet** : Dans GNS3, créez un nouveau projet.
+2. **Ajouter les VMs au projet** : Glissez et déposez chaque VM importée dans l'espace de travail du projet.
+3. **Configurer les VMs** :
+   - Double-cliquez sur chaque VM ajoutée dans le projet pour ouvrir le menu contextuel.
+   - Ajoutez une interface réseau supplémentaire si nécessaire.
+   - Cochez la case pour autoriser GNS3 à gérer toutes les interfaces de cette VM.
+
+#### Étape 4: Connexion des VMs à un Switch Ethernet
+1. **Ajouter un Switch Ethernet** : 
+   - Trouvez le switch Ethernet dans la barre latérale de GNS3 (sous `Switches`) et ajoutez-le à votre espace de travail.
+2. **Connecter les VMs au Switch** : 
+   - Cliquez sur une VM, puis sur le switch Ethernet, et sélectionnez les interfaces à connecter.
+   - Répétez cette opération pour chaque VM.
+
+#### Remarques importantes :
+- Une fois les VMs configurées et ajoutées dans GNS3, n’utilisez plus les commandes Vagrant pour les gérer. Utilisez uniquement les fonctionnalités de GNS3 pour démarrer, arrêter, ou modifier ces VMs.
+- Les modifications faites aux VMs via GNS3 ne seront pas reflétées dans Vagrant.
