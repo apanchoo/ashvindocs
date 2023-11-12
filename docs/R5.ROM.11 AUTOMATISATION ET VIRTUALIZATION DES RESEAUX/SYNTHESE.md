@@ -17,6 +17,8 @@ Dans ce document, nous vous fournirons une présentation détaillée des instruc
 5. **Docker** : Une plateforme qui permet de créer, déployer et exécuter des applications dans des conteneurs.
 
 Les interactions entre ces différents composants sont illustrées et expliquées dans les sections suivantes du document.
+![schema](https://i.ibb.co/6YMGhL7/dim-12-nov-2023-21-14-48-04.jpg)
+
 
 ## PREREQUIS 
 
@@ -127,6 +129,7 @@ end
 
 
 ##  Installation d'OpenStack sur h1
+![Openstack](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/OpenStack%C2%AE_Logo_2016.svg/800px-OpenStack%C2%AE_Logo_2016.svg.png)
 
 ###  Introduction
 
@@ -253,7 +256,7 @@ Pour chaque switch SW1 et SW2 il faut leur spécifier la présence de notre cont
 ```bash
 sudo ovs-vsctl set bridge br0 protocols=OpenFlow10 -- set-controller br0 tcp:192.168.56.12:6633
 ```
-
+![vxlan](https://i.ibb.co/bQ7j1y1/dim-12-nov-2023-21-17-04-04.jpg)
 ### Test de fonctionnement
 
 Tout ce qu'il reste à faire maintenant est de tester cette configuration en attribuant des adresses IP superposées aux hôtes et en effectuant un test ping. Par réseau superposé, nous entendons ce réseau logique que nous avons construit en utilisant des liens VXLAN et des switchs OvS par-dessus notre réseau. Les hôtes font certainement partie de ce réseau, donc nous devrions également leur attribuer de nouvelles adresses IP pour ce réseau. Sur h1 et h2, nous exécutons :
@@ -278,7 +281,9 @@ sudo ip link set br0-int up
  # Sur h2
  ping 100.0.0.101
  ```
-
+:::warning
+Il se peut que pendant les 30 première seconde l'erreur host unrechable s'affiche. Cella est normal et est du au temps de convergense de opendaylight. Néanmoins si le problème perssiste redémarrer opendaylight.
+:::
 :::info
 Webographie :
 
@@ -301,7 +306,6 @@ Pour analyser les trames réseau sur la machine virtuelle H2, nous utiliserons W
 
 2. **Configurer la Redirection X11 sous Windows** :
    - Installez un serveur X11, tel que Xming ou VcXsrv, sur votre système Windows.
-   - Assurez-vous que la redirection X11 est activée dans votre client SSH.
 
 3. **Lancer Wireshark via SSH avec Redirection X11** :
    - Lancez Wireshark avec la commande suivante, qui préserve les variables d'environnement pour la redirection X11 :
@@ -316,6 +320,7 @@ Pour analyser les trames réseau sur la machine virtuelle H2, nous utiliserons W
 
 Observez comment les trames ICMP sont encapsulées dans VXLAN, ce qui permet une analyse détaillée du trafic réseau à travers le tunnel VXLAN.
 
+![wireshark](https://i.ibb.co/Gs6Fq98/image.png)
 
 
 ## Installation de Docker et Ansible sur h2 et Provisionnement d'un Conteneur Docker via Ansible
