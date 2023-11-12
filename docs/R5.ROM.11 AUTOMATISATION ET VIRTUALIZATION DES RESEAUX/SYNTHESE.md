@@ -146,7 +146,6 @@ Nous allons procéder à l'installation d'OpenStack sur la machine virtuelle h1.
     h1.vm.network "private_network", ip: "192.168.56.10"
     
     # Configuration réseau en mode ponté de VM1
-    h1.vm.network "public_network", bridge: "wlan0" 
 
     # Configuration du fournisseur VirtualBox de VM1
     h1.vm.provider "virtualbox" do |vb|
